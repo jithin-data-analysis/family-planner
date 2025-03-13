@@ -9,7 +9,6 @@ import threading
 from utils import monitor_performance, record_cache_hit, record_cache_miss, log_performance_summary
 import logging
 from typing import Optional, Dict, List, Any
-from config import DATABASE_URL
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -125,54 +124,24 @@ class DatabaseConnectionPool:
 # Global connection pool
 _connection_pool = None
 
+@monitor_performance()
+@contextmanager
 def get_db_connection():
-    """Get database connection based on environment"""
-    if DATABASE_URL.startswith('sqlite'):
-        # SQLite connection (development)
-        conn = sqlite3.connect('family_planner.db')
-        conn.row_factory = sqlite3.Row
-        return conn
-    else:
-        # PostgreSQL connection (production)
-        import psycopg2
-        from psycopg2.extras import RealDictCursor
-        conn = psycopg2.connect(DATABASE_URL)
-        conn.autocommit = True
-        return conn
-
-def init_database():
-    """Initialize database tables"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Create tables based on database type
-    if DATABASE_URL.startswith('sqlite'):
-        # SQLite table creation
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE NOT NULL,
-                password_hash TEXT NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        # Add other table creation statements...
-    else:
-        # PostgreSQL table creation
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                username VARCHAR(255) UNIQUE NOT NULL,
-                password_hash TEXT NOT NULL,
-                email VARCHAR(255) UNIQUE NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        # Add other table creation statements...
-    
-    conn.commit()
-    conn.close()
+    """Context manager for database connections with proper error handling"""
+    conn = None
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row  # Enable dictionary-like access to rows
+        yield conn
+    except sqlite3.Error as e:
+        logger.error(f"Database error: {str(e)}")
+        raise DatabaseError(f"Database operation failed: {str(e)}")
+    finally:
+        if conn:
+            try:
+                conn.close()
+            except sqlite3.Error as e:
+                logger.error(f"Error closing connection: {str(e)}")
 
 def execute_query(query: str, params: tuple = None) -> Optional[List[Dict[str, Any]]]:
     """Execute a query and return results with proper error handling"""
