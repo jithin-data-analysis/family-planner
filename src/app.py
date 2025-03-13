@@ -22,75 +22,199 @@ from db_utils import (
     update_user_profile, get_user_data, import_user_data, delete_user_data
 )
 from models import create_tables
+from init_db import init_database
 
 # Set page configuration
 st.set_page_config(
     page_title="Family Planner",
     page_icon="👨‍👩‍👧‍👦",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': 'https://github.com/jithin-data-analysis/family-planner',
+        'Report a bug': "https://github.com/jithin-data-analysis/family-planner/issues",
+        'About': """
+        # Family Planner
+        A comprehensive family management application that helps you:
+        - Track finances and budgets
+        - Manage family events and schedules
+        - Set and track goals
+        - Organize shopping lists
+        - Maintain family profiles
+        """
+    }
 )
+
+# Custom CSS for modern UI
+st.markdown("""
+    <style>
+    .main {
+        background-color: #f8f9fa;
+    }
+    .stButton>button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+    }
+    .stButton>button:hover {
+        background-color: #45a049;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .stMetric {
+        background-color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin: 0.5rem 0;
+    }
+    .stExpander {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin: 1rem 0;
+    }
+    .stSelectbox {
+        background-color: white;
+        border-radius: 4px;
+        padding: 0.5rem;
+    }
+    .stTextInput>div>div>input {
+        background-color: white;
+        border-radius: 4px;
+        padding: 0.5rem;
+    }
+    .stTextArea>div>div>textarea {
+        background-color: white;
+        border-radius: 4px;
+        padding: 0.5rem;
+    }
+    .stProgress .st-bo {
+        background-color: #e0e0e0;
+        border-radius: 10px;
+    }
+    .stProgress .st-bo > div {
+        background-color: #4CAF50;
+        border-radius: 10px;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # Initialize session state
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 if 'user_id' not in st.session_state:
     st.session_state.user_id = None
+if 'theme' not in st.session_state:
+    st.session_state.theme = 'light'
 
-# Initialize database
-conn = get_db_connection()
-create_tables(conn)
-conn.close()
+# Initialize database on startup
+init_database()
 
 def show_login():
     """Display login form"""
-    st.header("Login")
+    # Add a welcoming header
+    st.markdown("""
+        <div style='text-align: center; margin-bottom: 2rem;'>
+            <h1 style='color: #4CAF50;'>👨‍👩‍👧‍👦 Family Planner</h1>
+            <p style='color: #666; font-size: 1.2rem;'>Your personal family management assistant</p>
+        </div>
+    """, unsafe_allow_html=True)
     
-    # Add tabs for login and registration
-    tab1, tab2 = st.tabs(["Login", "Register"])
+    # Create a centered container for the login/register forms
+    col1, col2, col3 = st.columns([1, 2, 1])
     
-    with tab1:
-        with st.form("login_form"):
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
-            submit = st.form_submit_button("Login")
+    with col2:
+        # Add tabs for login and registration
+        tab1, tab2 = st.tabs(["Login", "Register"])
+        
+        with tab1:
+            st.markdown("""
+                <div style='background-color: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                    <h2 style='color: #4CAF50; margin-bottom: 1.5rem;'>Welcome Back!</h2>
+            """, unsafe_allow_html=True)
             
-            if submit:
-                user = verify_user(username, password)
-                if user:
-                    st.session_state.logged_in = True
-                    st.session_state.user_id = user['id']
-                    st.success("Login successful!")
-                    st.rerun()
-                else:
-                    st.error("Invalid username or password")
-    
-    with tab2:
-        with st.form("register_form"):
-            new_username = st.text_input("Username")
-            new_email = st.text_input("Email")
-            new_password = st.text_input("Password", type="password")
-            confirm_password = st.text_input("Confirm Password", type="password")
-            submit = st.form_submit_button("Register")
-            
-            if submit:
-                if new_password != confirm_password:
-                    st.error("Passwords do not match")
-                else:
-                    user_id = create_user(new_username, new_password, new_email)
-                    if user_id:
-                        st.success("Registration successful! Please login.")
+            with st.form("login_form"):
+                username = st.text_input("Username", placeholder="Enter your username")
+                password = st.text_input("Password", type="password", placeholder="Enter your password")
+                submit = st.form_submit_button("Login", use_container_width=True)
+                
+                if submit:
+                    user = verify_user(username, password)
+                    if user:
+                        st.session_state.logged_in = True
+                        st.session_state.user_id = user['id']
+                        st.success("Login successful! Welcome back!")
+                        st.rerun()
                     else:
-                        st.error("Username or email already exists")
+                        st.error("Invalid username or password")
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+        
+        with tab2:
+            st.markdown("""
+                <div style='background-color: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                    <h2 style='color: #4CAF50; margin-bottom: 1.5rem;'>Create Account</h2>
+            """, unsafe_allow_html=True)
+            
+            with st.form("register_form"):
+                new_username = st.text_input("Username", placeholder="Choose a username")
+                new_email = st.text_input("Email", placeholder="Enter your email")
+                new_password = st.text_input("Password", type="password", placeholder="Choose a password")
+                confirm_password = st.text_input("Confirm Password", type="password", placeholder="Confirm your password")
+                submit = st.form_submit_button("Register", use_container_width=True)
+                
+                if submit:
+                    if new_password != confirm_password:
+                        st.error("Passwords do not match")
+                    else:
+                        user_id = create_user(new_username, new_password, new_email)
+                        if user_id:
+                            st.success("Registration successful! Please login.")
+                            st.rerun()
+                        else:
+                            st.error("Username or email already exists")
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+        
+        # Add features section
+        st.markdown("""
+            <div style='margin-top: 2rem; text-align: center;'>
+                <h3 style='color: #4CAF50;'>Features</h3>
+                <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;'>
+                    <div style='background-color: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                        <h4 style='color: #4CAF50;'>💰 Finance</h4>
+                        <p style='color: #666;'>Track expenses and manage budgets</p>
+                    </div>
+                    <div style='background-color: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                        <h4 style='color: #4CAF50;'>📅 Calendar</h4>
+                        <p style='color: #666;'>Organize family events</p>
+                    </div>
+                    <div style='background-color: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                        <h4 style='color: #4CAF50;'>🎯 Goals</h4>
+                        <p style='color: #666;'>Set and track family goals</p>
+                    </div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
 
 def show_home():
     """Display home dashboard"""
-    st.header("Welcome to Family Planner")
+    # Welcome message with user's name
+    st.markdown("""
+        <div style='background-color: #4CAF50; color: white; padding: 2rem; border-radius: 10px; margin-bottom: 2rem;'>
+            <h1 style='margin: 0;'>Welcome to Family Planner</h1>
+            <p style='margin: 0.5rem 0 0; font-size: 1.2rem;'>Your personal family management assistant</p>
+        </div>
+    """, unsafe_allow_html=True)
     
-    col1, col2 = st.columns(2)
+    # Quick Stats Row
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.subheader("📊 Quick Stats")
         # Get current month's transactions
         current_month = datetime.now().month
         current_year = datetime.now().year
@@ -99,19 +223,126 @@ def show_home():
         # Calculate total income and expenses
         income = sum(float(t['amount']) for t in transactions if t['transaction_type'] == 'income')
         expenses = sum(float(t['amount']) for t in transactions if t['transaction_type'] == 'expense')
+        balance = income - expenses
         
-        st.metric(label="Total Income", value=f"${income:,.2f}")
-        st.metric(label="Total Expenses", value=f"${expenses:,.2f}")
-        st.metric(label="Balance", value=f"${income - expenses:,.2f}")
+        st.metric(
+            label="Total Income",
+            value=f"${income:,.2f}",
+            delta=f"${income - expenses:,.2f}",
+            delta_color="normal"
+        )
+    
+    with col2:
+        st.metric(
+            label="Total Expenses",
+            value=f"${expenses:,.2f}",
+            delta=f"${expenses - income:,.2f}",
+            delta_color="inverse"
+        )
+    
+    with col3:
+        st.metric(
+            label="Current Balance",
+            value=f"${balance:,.2f}",
+            delta=f"{'Positive' if balance >= 0 else 'Negative'}",
+            delta_color="normal" if balance >= 0 else "inverse"
+        )
+    
+    with col4:
+        # Get upcoming events
+        upcoming_events = get_upcoming_events(st.session_state.user_id, days=7)
+        st.metric(
+            label="Upcoming Events",
+            value=str(len(upcoming_events)),
+            delta="This Week"
+        )
+    
+    # Main Content Area
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.subheader("📊 Financial Overview")
+        # Create a line chart for income vs expenses
+        fig = go.Figure()
+        
+        # Add income line
+        fig.add_trace(go.Scatter(
+            y=[income],
+            name="Income",
+            line=dict(color='#4CAF50', width=2),
+            mode='lines+markers'
+        ))
+        
+        # Add expenses line
+        fig.add_trace(go.Scatter(
+            y=[expenses],
+            name="Expenses",
+            line=dict(color='#f44336', width=2),
+            mode='lines+markers'
+        ))
+        
+        fig.update_layout(
+            title="Income vs Expenses",
+            height=300,
+            showlegend=True,
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)'
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
     
     with col2:
         st.subheader("📅 Quick Actions")
-        if st.button("Add Transaction"):
-            st.session_state.page = "Financial Dashboard"
-            st.rerun()
-        if st.button("Create Shopping List"):
-            st.session_state.page = "Shopping Lists"
-            st.rerun()
+        action_buttons = [
+            ("Add Transaction", "Financial Dashboard"),
+            ("Create Shopping List", "Shopping Lists"),
+            ("Add Family Member", "Family Profiles"),
+            ("Set New Goal", "Goals"),
+            ("Add Event", "Calendar")
+        ]
+        
+        for label, page in action_buttons:
+            if st.button(label, use_container_width=True):
+                st.session_state.page = page
+                st.rerun()
+    
+    # Upcoming Events and Goals
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("📅 Upcoming Events")
+        if upcoming_events:
+            for event in upcoming_events:
+                st.markdown(f"""
+                    <div style='background-color: white; padding: 1rem; border-radius: 8px; margin: 0.5rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                        <h4 style='margin: 0;'>{event['title']}</h4>
+                        <p style='margin: 0.5rem 0; color: #666;'>{event['description']}</p>
+                        <p style='margin: 0; color: #4CAF50;'>📅 {event['start_date']}</p>
+                    </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.info("No upcoming events for the next 7 days.")
+    
+    with col2:
+        st.subheader("🎯 Active Goals")
+        goals = get_goals(st.session_state.user_id, status="In Progress")
+        if goals:
+            for goal in goals:
+                st.markdown(f"""
+                    <div style='background-color: white; padding: 1rem; border-radius: 8px; margin: 0.5rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                        <h4 style='margin: 0;'>{goal['title']}</h4>
+                        <p style='margin: 0.5rem 0; color: #666;'>{goal['description']}</p>
+                        <div style='margin: 0.5rem 0;'>
+                            <div style='height: 8px; background-color: #e0e0e0; border-radius: 4px;'>
+                                <div style='width: {goal['progress']}%; height: 100%; background-color: #4CAF50; border-radius: 4px;'></div>
+                            </div>
+                            <p style='margin: 0; text-align: right; color: #666;'>{goal['progress']}% Complete</p>
+                        </div>
+                        <p style='margin: 0; color: #4CAF50;'>🎯 Target: {goal['target_date']}</p>
+                    </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.info("No active goals. Set your first goal to start tracking your progress!")
 
 def show_financial_dashboard():
     """Display financial dashboard"""
@@ -141,24 +372,114 @@ def show_financial_dashboard():
                 )
                 st.success("Transaction added successfully!")
     
-    # Display transactions
-    st.subheader("Recent Transactions")
+    # Get transactions
     transactions = get_transactions(st.session_state.user_id)
+    
     if transactions:
-        # Create a DataFrame for plotting
+        # Create a DataFrame for analysis
         import pandas as pd
         df = pd.DataFrame(transactions)
         
-        # Plot expenses by category
+        # Calculate key metrics
+        total_income = df[df['transaction_type'] == 'income']['amount'].sum()
+        total_expenses = df[df['transaction_type'] == 'expense']['amount'].sum()
+        current_balance = total_income - total_expenses
+        
+        # Display metrics in a row
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Total Income", f"${total_income:,.2f}")
+        with col2:
+            st.metric("Total Expenses", f"${total_expenses:,.2f}")
+        with col3:
+            st.metric("Current Balance", f"${current_balance:,.2f}")
+        
+        # AI-Powered Insights
+        st.subheader("🤖 AI Insights")
+        insights_container = st.container()
+        
+        # Analyze spending patterns
         expenses_by_category = df[df['transaction_type'] == 'expense'].groupby('category')['amount'].sum()
-        fig = px.pie(
-            values=expenses_by_category.values,
-            names=expenses_by_category.index,
-            title="Expenses by Category"
-        )
-        st.plotly_chart(fig)
+        top_categories = expenses_by_category.nlargest(3)
+        
+        with insights_container:
+            st.markdown("""
+                <div style='background-color: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;'>
+                    <h4 style='color: #4CAF50;'>Spending Analysis</h4>
+            """, unsafe_allow_html=True)
+            
+            # Generate insights based on spending patterns
+            if len(top_categories) > 0:
+                top_category = top_categories.index[0]
+                top_amount = top_categories.values[0]
+                st.markdown(f"""
+                    - Your highest spending category is **{top_category}** (${top_amount:,.2f})
+                    - This represents {top_amount/total_expenses*100:.1f}% of your total expenses
+                """)
+            
+            # Savings rate analysis
+            if total_income > 0:
+                savings_rate = (total_income - total_expenses) / total_income * 100
+                st.markdown(f"""
+                    - Your current savings rate is **{savings_rate:.1f}%**
+                    - {'This is good!' if savings_rate >= 20 else 'Consider increasing your savings rate'}
+                """)
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+        
+        # Visualizations
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Expenses by category pie chart
+            fig = px.pie(
+                values=expenses_by_category.values,
+                names=expenses_by_category.index,
+                title="Expenses by Category"
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with col2:
+            # Monthly trend line chart
+            df['date'] = pd.to_datetime(df['date'])
+            monthly_data = df.groupby(df['date'].dt.to_period('M')).agg({
+                'amount': lambda x: x[df['transaction_type'] == 'income'].sum(),
+                'amount': lambda x: x[df['transaction_type'] == 'expense'].sum()
+            }).reset_index()
+            
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=monthly_data['date'].astype(str),
+                y=monthly_data['amount'],
+                mode='lines+markers',
+                name='Monthly Expenses'
+            ))
+            fig.update_layout(title="Monthly Expense Trend")
+            st.plotly_chart(fig, use_container_width=True)
+        
+        # AI Recommendations
+        st.subheader("💡 Smart Recommendations")
+        recommendations = []
+        
+        # Analyze spending patterns and generate recommendations
+        if total_expenses > 0:
+            # Check for high spending in specific categories
+            for category, amount in expenses_by_category.items():
+                if amount / total_expenses > 0.3:  # If category represents more than 30% of expenses
+                    recommendations.append(f"Consider reviewing your spending in the **{category}** category")
+            
+            # Check for savings rate
+            if (total_income - total_expenses) / total_income < 0.2:
+                recommendations.append("Your savings rate is below 20%. Consider reducing expenses or increasing income")
+        
+        if recommendations:
+            for rec in recommendations:
+                st.markdown(f"- {rec}")
+        else:
+            st.info("Your financial health looks good! Keep up the good work!")
         
         # Display transaction list
+        st.subheader("Recent Transactions")
         for tx in transactions:
             with st.expander(f"{tx['date']} - {tx['description']} (${float(tx['amount']):,.2f})"):
                 st.write(f"Category: {tx['category']}")
@@ -643,6 +964,75 @@ def show_goals():
     if not goals:
         st.info("No goals added yet. Create your first goal above!")
     else:
+        # AI-Powered Goal Analysis
+        st.subheader("🤖 Goal Analysis")
+        analysis_container = st.container()
+        
+        with analysis_container:
+            # Calculate overall progress
+            total_goals = len(goals)
+            completed_goals = len([g for g in goals if g['status'] == 'Completed'])
+            in_progress_goals = len([g for g in goals if g['status'] == 'In Progress'])
+            
+            # Calculate average progress
+            avg_progress = sum(float(g['progress']) for g in goals) / total_goals
+            
+            st.markdown("""
+                <div style='background-color: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;'>
+                    <h4 style='color: #4CAF50;'>Progress Overview</h4>
+            """, unsafe_allow_html=True)
+            
+            st.markdown(f"""
+                - Total Goals: **{total_goals}**
+                - Completed: **{completed_goals}** ({completed_goals/total_goals*100:.1f}%)
+                - In Progress: **{in_progress_goals}** ({in_progress_goals/total_goals*100:.1f}%)
+                - Average Progress: **{avg_progress:.1f}%**
+            """)
+            
+            # Analyze goal completion patterns
+            if completed_goals > 0:
+                completed_goals_data = [g for g in goals if g['status'] == 'Completed']
+                avg_completion_time = sum(
+                    (datetime.strptime(g['target_date'], "%Y-%m-%d") - datetime.now()).days
+                    for g in completed_goals_data
+                ) / completed_goals
+                
+                st.markdown(f"""
+                    - Average Time to Complete: **{abs(avg_completion_time):.0f} days**
+                """)
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+        
+        # Smart Recommendations
+        st.subheader("💡 Smart Recommendations")
+        recommendations = []
+        
+        # Analyze goals and generate recommendations
+        for goal in goals:
+            if goal['status'] == 'In Progress':
+                # Check for goals approaching deadline
+                target_date = datetime.strptime(goal['target_date'], "%Y-%m-%d")
+                days_remaining = (target_date - datetime.now()).days
+                
+                if 0 < days_remaining < 7:
+                    recommendations.append(
+                        f"**{goal['title']}** is due in {days_remaining} days. "
+                        f"Current progress: {goal['progress']}%"
+                    )
+                
+                # Check for stalled goals
+                if float(goal['progress']) < 30 and days_remaining < 30:
+                    recommendations.append(
+                        f"**{goal['title']}** might need attention. "
+                        f"Consider breaking it down into smaller milestones."
+                    )
+        
+        if recommendations:
+            for rec in recommendations:
+                st.markdown(f"- {rec}")
+        else:
+            st.info("Your goals are on track! Keep up the good work!")
+        
         # Display goals in a kanban-style board
         status_cols = st.columns(len(get_goal_status_types()))
         
@@ -653,7 +1043,7 @@ def show_goals():
                 
                 for goal in status_goals:
                     with st.container():
-                        # Goal card
+                        # Goal card with enhanced visualization
                         st.markdown(f"""
                         <div style='padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin: 5px;'>
                             <h4>{goal['title']}</h4>
@@ -813,6 +1203,104 @@ def show_goals():
             )
             st.plotly_chart(fig)
 
+def show_ai_assistant():
+    """Display AI Assistant interface"""
+    st.header("🤖 AI Assistant")
+    
+    # Initialize chat history
+    if 'chat_history' not in st.session_state:
+        st.session_state.chat_history = []
+    
+    # Display chat history
+    for message in st.session_state.chat_history:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+    
+    # Chat input
+    if prompt := st.chat_input("Ask me anything about family management..."):
+        # Add user message to chat history
+        st.session_state.chat_history.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        
+        # Generate AI response
+        with st.chat_message("assistant"):
+            response = generate_ai_response(prompt)
+            st.markdown(response)
+            st.session_state.chat_history.append({"role": "assistant", "content": response})
+    
+    # Quick action buttons
+    st.markdown("### Quick Actions")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("💡 Get Budget Advice"):
+            prompt = "What are some tips for creating and sticking to a family budget?"
+            st.session_state.chat_history.append({"role": "user", "content": prompt})
+            with st.chat_message("assistant"):
+                response = generate_ai_response(prompt)
+                st.markdown(response)
+                st.session_state.chat_history.append({"role": "assistant", "content": response})
+    
+    with col2:
+        if st.button("🎯 Goal Planning"):
+            prompt = "How can I set and achieve family goals effectively?"
+            st.session_state.chat_history.append({"role": "user", "content": prompt})
+            with st.chat_message("assistant"):
+                response = generate_ai_response(prompt)
+                st.markdown(response)
+                st.session_state.chat_history.append({"role": "assistant", "content": response})
+    
+    with col3:
+        if st.button("📅 Event Planning"):
+            prompt = "What are some tips for organizing family events and activities?"
+            st.session_state.chat_history.append({"role": "user", "content": prompt})
+            with st.chat_message("assistant"):
+                response = generate_ai_response(prompt)
+                st.markdown(response)
+                st.session_state.chat_history.append({"role": "assistant", "content": response})
+
+def generate_ai_response(prompt):
+    """Generate AI response based on user input"""
+    # This is a placeholder for actual AI integration
+    # In a real application, you would integrate with an AI service
+    responses = {
+        "budget": [
+            "Here are some tips for creating and sticking to a family budget:\n\n"
+            "1. Track all income and expenses\n"
+            "2. Set realistic goals\n"
+            "3. Use the 50/30/20 rule\n"
+            "4. Review and adjust regularly\n"
+            "5. Involve the whole family"
+        ],
+        "goals": [
+            "To set and achieve family goals effectively:\n\n"
+            "1. Make goals specific and measurable\n"
+            "2. Break down large goals into smaller steps\n"
+            "3. Set deadlines\n"
+            "4. Celebrate progress\n"
+            "5. Review and adjust as needed"
+        ],
+        "events": [
+            "Tips for organizing family events:\n\n"
+            "1. Use a shared calendar\n"
+            "2. Plan ahead\n"
+            "3. Delegate tasks\n"
+            "4. Set reminders\n"
+            "5. Keep a checklist"
+        ]
+    }
+    
+    # Simple response generation based on keywords
+    if "budget" in prompt.lower():
+        return responses["budget"][0]
+    elif "goal" in prompt.lower():
+        return responses["goals"][0]
+    elif "event" in prompt.lower():
+        return responses["events"][0]
+    else:
+        return "I'm here to help with your family management needs. You can ask me about budgeting, goal setting, event planning, and more!"
+
 def show_settings():
     """Display settings and user profile interface"""
     st.header("⚙️ Settings")
@@ -894,36 +1382,113 @@ def show_settings():
                 st.error("Please type 'DELETE' to confirm")
 
 def main():
-    st.title("👨‍👩‍👧‍👦 Family Planner")
+    # Custom CSS for sidebar
+    st.markdown("""
+        <style>
+        .css-1d391kg {
+            background-color: #f8f9fa;
+        }
+        .css-1d391kg .sidebar-content {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem;
+        }
+        .css-1d391kg .sidebar-content .block-container {
+            padding-top: 0;
+        }
+        </style>
+    """, unsafe_allow_html=True)
     
-    # Sidebar navigation
-    st.sidebar.title("Navigation")
-    page = st.sidebar.selectbox(
-        "Choose a page",
-        ["Home", "Financial Dashboard", "Budget Planning", "Shopping Lists", 
-         "Calendar", "Family Profiles", "Goals", "Settings"]
-    )
+    # Sidebar navigation with icons
+    with st.sidebar:
+        st.markdown("""
+            <div style='text-align: center; margin-bottom: 2rem;'>
+                <h2 style='color: #4CAF50;'>Family Planner</h2>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Navigation menu with icons
+        menu_items = [
+            ("🏠 Home", "Home"),
+            ("💰 Financial Dashboard", "Financial Dashboard"),
+            ("📊 Budget Planning", "Budget Planning"),
+            ("🛒 Shopping Lists", "Shopping Lists"),
+            ("📅 Calendar", "Calendar"),
+            ("👨‍👩‍👧‍👦 Family Profiles", "Family Profiles"),
+            ("🎯 Goals", "Goals"),
+            ("🤖 AI Assistant", "AI Assistant"),
+            ("⚙️ Settings", "Settings")
+        ]
+        
+        for icon, label in menu_items:
+            if st.button(f"{icon} {label}", use_container_width=True, key=f"nav_{label}"):
+                st.session_state.page = label
+                st.rerun()
+        
+        # Theme selector
+        st.markdown("---")
+        st.markdown("### Theme")
+        theme = st.selectbox(
+            "Choose theme",
+            ["Light", "Dark"],
+            key="theme_selector",
+            label_visibility="collapsed"
+        )
+        if theme != st.session_state.theme:
+            st.session_state.theme = theme.lower()
+            st.rerun()
+        
+        # User info and logout
+        st.markdown("---")
+        st.markdown("### Account")
+        if st.button("🚪 Logout", use_container_width=True):
+            st.session_state.logged_in = False
+            st.session_state.user_id = None
+            st.rerun()
     
+    # Main content area
     if not st.session_state.logged_in:
         show_login()
     else:
-        if page == "Home":
+        # Page title with icon
+        page_icons = {
+            "Home": "🏠",
+            "Financial Dashboard": "💰",
+            "Budget Planning": "📊",
+            "Shopping Lists": "🛒",
+            "Calendar": "📅",
+            "Family Profiles": "👨‍👩‍👧‍👦",
+            "Goals": "🎯",
+            "AI Assistant": "🤖",
+            "Settings": "⚙️"
+        }
+        
+        st.markdown(f"""
+            <div style='background-color: white; padding: 1rem; border-radius: 10px; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                <h1 style='margin: 0; color: #4CAF50;'>{page_icons.get(st.session_state.page, '')} {st.session_state.page}</h1>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Show the appropriate page
+        if st.session_state.page == "Home":
             show_home()
-        elif page == "Financial Dashboard":
+        elif st.session_state.page == "Financial Dashboard":
             show_financial_dashboard()
-        elif page == "Shopping Lists":
+        elif st.session_state.page == "Shopping Lists":
             show_shopping_lists()
-        elif page == "Budget Planning":
+        elif st.session_state.page == "Budget Planning":
             show_budget_planning()
-        elif page == "Family Profiles":
+        elif st.session_state.page == "Family Profiles":
             show_family_profiles()
-        elif page == "Calendar":
+        elif st.session_state.page == "Calendar":
             show_calendar()
-        elif page == "Goals":
+        elif st.session_state.page == "Goals":
             show_goals()
-        elif page == "Settings":
+        elif st.session_state.page == "AI Assistant":
+            show_ai_assistant()
+        elif st.session_state.page == "Settings":
             show_settings()
-        # Add other page conditions here
 
 if __name__ == "__main__":
     main() 
