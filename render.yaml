@@ -3,8 +3,8 @@ services:
     name: family-planner
     env: python
     buildCommand: |
-      python -m pip install --upgrade pip setuptools wheel
-      pip install --no-cache-dir -r requirements.txt
+      python3.9 -m pip install --upgrade pip setuptools wheel
+      python3.9 -m pip install --no-cache-dir -r requirements.txt
     startCommand: streamlit run src/app.py
     envVars:
       - key: PYTHON_VERSION
@@ -21,6 +21,10 @@ services:
         value: true
       - key: PYTHONDONTWRITEBYTECODE
         value: true
+      - key: CARGO_HOME
+        value: /tmp/cargo
+      - key: RUSTUP_HOME
+        value: /tmp/rustup
 
 databases:
   - name: family_planner_db
