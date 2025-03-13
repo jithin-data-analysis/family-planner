@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: family-planner
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run src/app.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.8.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: family_planner_db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+
+databases:
+  - name: family_planner_db
+    databaseName: family_planner
+    user: family_planner_user 
