@@ -1,6 +1,64 @@
-# Family Planner
+# Family Planner Application
 
-A comprehensive family management application built with Streamlit that helps families organize their finances, events, goals, and daily activities.
+A Streamlit-based family planning and management application.
+
+## Deployment Instructions for Python Anywhere
+
+1. Sign up for a Python Anywhere account at https://www.pythonanywhere.com/
+
+2. Create a new Web App:
+   - Go to the Web tab
+   - Click "Add a new web app"
+   - Choose "Flask" as the framework
+   - Select Python 3.9 as the Python version
+
+3. Set up the virtual environment:
+   ```bash
+   mkvirtualenv --python=/usr/bin/python3.9 family-planner
+   pip install -r requirements.txt
+   ```
+
+4. Configure the Web App:
+   - Set the working directory to your project directory
+   - Set the WSGI configuration file to point to `wsgi.py`
+   - Set the virtual environment path to your created virtual environment
+   - Add the following environment variables:
+     - DATABASE_URL
+     - SECRET_KEY
+     - DEBUG=false
+
+5. Upload your code:
+   - Use the Files tab to upload your project files
+   - Or use Git to clone your repository
+
+6. Configure the database:
+   - Go to the Databases tab
+   - Create a new MySQL database
+   - Note down the database credentials
+   - Update the DATABASE_URL environment variable
+
+7. Start the Web App:
+   - Go to the Web tab
+   - Click the "Reload" button
+
+## Local Development
+
+To run the application locally:
+
+```bash
+pip install -r requirements.txt
+streamlit run src/app.py
+```
+
+## Features
+
+- Family member management
+- Task and event tracking
+- Budget management
+- Family calendar
+- Document storage
+- Family chat
+- Family goals tracking
 
 ## Features
 
