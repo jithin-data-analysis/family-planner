@@ -1,0 +1,182 @@
+/* Modern Theme Colors */
+:root {
+    --primary-color: #2E7D32;
+    --secondary-color: #1976D2;
+    --accent-color: #FFA000;
+    --background-color: #F5F5F5;
+    --surface-color: #FFFFFF;
+    --text-primary: #212121;
+    --text-secondary: #757575;
+    --error-color: #D32F2F;
+    --success-color: #388E3C;
+}
+
+/* Main App Styling */
+.stApp {
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Header Styling */
+.stApp header {
+    background-color: var(--surface-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1rem;
+}
+
+/* Sidebar Styling */
+.css-1d391kg {
+    background-color: var(--surface-color);
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+    padding: 1rem;
+}
+
+/* Navigation Buttons */
+.stButton > button {
+    background-color: transparent;
+    color: var(--text-primary);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0;
+    transition: all 0.3s ease;
+    text-align: left;
+    width: 100%;
+}
+
+.stButton > button:hover {
+    background-color: rgba(46, 125, 50, 0.1);
+    color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+/* Active Navigation Button */
+.stButton > button[data-testid="nav_Home"] {
+    background-color: rgba(46, 125, 50, 0.1);
+    color: var(--primary-color);
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+    background-color: var(--surface-color);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* User Profile Card */
+.user-profile {
+    background-color: var(--surface-color);
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Button Styling */
+.stButton > button[type="primary"] {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.stButton > button[type="primary"]:hover {
+    background-color: #1B5E20;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Card Styling */
+.stExpander {
+    background-color: var(--surface-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin: 1rem 0;
+    padding: 1rem;
+}
+
+/* Metric Cards */
+.stMetric {
+    background-color: var(--surface-color);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin: 0.5rem 0;
+}
+
+/* Form Elements */
+.stTextInput > div > div > input,
+.stNumberInput > div > div > input,
+.stSelectbox > div > div > select {
+    border: 1px solid #E0E0E0;
+    border-radius: 4px;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.stTextInput > div > div > input:focus,
+.stNumberInput > div > div > input:focus,
+.stSelectbox > div > div > select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+}
+
+/* Progress Bar */
+.stProgress > div > div > div {
+    background-color: var(--primary-color);
+}
+
+/* Charts and Graphs */
+.js-plotly-plot {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Tables */
+.stTable {
+    background-color: var(--surface-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Success/Error Messages */
+.stSuccess {
+    background-color: var(--success-color);
+    color: white;
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.stError {
+    background-color: var(--error-color);
+    color: white;
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+/* Navigation */
+.stSelectbox {
+    margin: 0.5rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .stApp {
+        padding: 0.5rem;
+    }
+    
+    .stMetric {
+        margin: 0.25rem 0;
+    }
+    
+    .stButton > button {
+        padding: 0.5rem 0.75rem;
+    }
+} 

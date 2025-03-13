@@ -1,13 +1,18 @@
 [theme]
-primaryColor = "#FF4B4B"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F0F2F6"
-textColor = "#262730"
+primaryColor = "#2E7D32"
+backgroundColor = "#F5F5F5"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#212121"
 font = "sans serif"
 
 [server]
-enableCORS = false
 enableXsrfProtection = true
+enableCORS = false
+enableStaticServing = true
+staticDirectory = "src/static"
 
 [browser]
-gatherUsageStats = false 
+gatherUsageStats = false
+
+[runner]
+fastRerenderThreshold = 1000 
