@@ -1,10 +1,23 @@
 import sqlite3
+import os
 import bcrypt
 from datetime import datetime, timedelta
 
 def get_db_connection():
-    """Get database connection"""
-    conn = sqlite3.connect('data/family_planner.db')
+    """Create a database connection"""
+    try:
+        # Try to use the data directory in the project root
+        data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
+    except:
+        # If that fails, use the current directory
+        data_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Create data directory if it doesn't exist
+    os.makedirs(data_dir, exist_ok=True)
+    
+    # Use absolute path for database file
+    db_path = os.path.join(data_dir, 'family_planner.db')
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
